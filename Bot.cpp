@@ -1,127 +1,43 @@
 #include <iostream>
 #include <vector>
-#include <string>
-#include <cstdlib>
-#include <ctime>
 
 using namespace std;
 
 int playerID;
 const int size = 10;
 
-void findCorners(vector<int>& possibleMoves);
-void readBoard(int board[][size], vector<int>& possibleMoves);
-void firstMove(vector<int>& possibleMoves);
-void displayMoves(vector<int>& possibleMoves);
+
+int highestScore(vector<int>& points);
 void displayBoard(int board[][size]);
-int getPoints(int board[][size], int a, int b);
+void firstMove(vector<int>& possibleMoves);
+void displayPoints(vector<int>& points);
+void displayMoves(vector<int>& possibleMoves);
+void finalOutput(vector<int>& possibleMoves, int index);
+void readBoard(int board[][size], vector<int>& possibleMoves, vector<int>& points);
+void evaluateCorners(vector<int>& possibleMoves, vector<int>& points);
+void evaluateHorizontal(int board[][size], vector<int>& possibleMoves, vector<int>& points);
+void evaluateNearCorners(int board[][size], vector<int>& possibleMoves, vector<int>& points);
 
 int main()
-{
-  srand(time(NULL));
-  
-  int vectorSize, score, scoreSize, largest, index, counter;
+{ 
+  int vectorSize, scoreSize, index;
   vector<int> moves, points;
   int board[size][size] = {0};
   
-  readBoard(board, moves);  
+  readBoard(board, moves, points);  
   
   vectorSize = moves.size();
- 
- //Gets a score for each individual move
-  for(int i = 0; i < vectorSize; i+=2)
-  {
-    score = getPoints(board, moves[i], moves[i+1]);
-    points.push_back(score);
-  }
+  scoreSize = vectorSize / 2;
   
-  //Finds the largest score
+  evaluateCorners(moves, points); 
+  evaluateNearCorners(board, moves, points); 
+  evaluateHorizontal(board, moves, points); 
   
+  index = highestScore(points);
   
-  scoreSize = points.size();
-  
-  for(int i = 0; i < scoreSize - 1; i++)
-  {
-    if(points[i] > points[i + 1])
-    {
-      index = i;
-      largest = points[i];
-    }
-    else
-    {
-      index = i + 1;
-      largest = points[i + 1];
-    }
-  }
-  
-  counter = 0;
-  
-  for(int i = 0; i < vectorSize; i+=2)
-  {
-    if(counter == index)
-    {
-      cout<<moves[i]<<" "<<moves[i + 1]<<endl;
-      break;
-    }
-    counter++;
-  }
-  
-  firstMove(moves);
-  
+  finalOutput(moves, index);
+
   return 0;
-}
- 
-
-
-void findCorners(vector<int>& possibleMoves)
-{
-  for(int i = 0; i < possibleMoves.size(); i+=2)
-  {
-    if((possibleMoves[i] == 0) && (possibleMoves[i+1] == 0))
-    {
-      cout<<possibleMoves[i]<<" "<<possibleMoves[i + 1]<<endl;
-      return;
-    }
-    
-    if((possibleMoves[i] == 0) && (possibleMoves[i+1] == 9))
-    {
-      cout<<possibleMoves[i]<<" "<<possibleMoves[i + 1]<<endl;
-      return;
-    }
-    
-    if((possibleMoves[i] == 9) && (possibleMoves[i+1] == 0))
-    {
-      cout<<possibleMoves[i]<<" "<<possibleMoves[i + 1]<<endl;
-      return;
-    }
-    
-    if((possibleMoves[i] == 9) && (possibleMoves[i+1] == 9))
-    {
-      cout<<possibleMoves[i]<<" "<<possibleMoves[i + 1]<<endl;
-      return;
-    }
-  }
-}
-
-
- 
-void readBoard(int board[][size], vector<int>& possibleMoves)
-{
-  for(int i = 0; i < size; i++)
-  {
-    for(int j = 0; j < size; j++)
-    {
-      cin>>board[i][j];
-      
-      if(board[i][j] == 3)
-      {
-        possibleMoves.push_back(i);
-        possibleMoves.push_back(j);
-        //possibleMoves.push_back(-1);
-      }
-    }
-  }
-  cin>>playerID;
 }
 
 void displayBoard(int board[][size])
@@ -138,126 +54,249 @@ void displayBoard(int board[][size])
   
 void displayMoves(vector<int>& possibleMoves)
 {
-  for(int i = 0; i < possibleMoves.size(); i++)
+  for(int i = 0; i < possibleMoves.size(); i+=2)
   {
-    cout<<possibleMoves[i]<<" ";
+    cout<<"("<<possibleMoves[i]<<", "<<possibleMoves[i + 1]<<"), ";
   }
+  cout<<endl;
 }  
 
-
-int getPoints(int board[][size], int a, int b)
+void readBoard(int board[][size], vector<int>& possibleMoves, vector<int>& points)
 {
-  int points = 0;
-  
-  //Strongly encourages making moves at corners
-  if(((a == 0) || (a == 9)) && ((b == 0) || (b == 9)))
+  for(int i = 0; i < size; i++)
   {
-    cout<<a<<" "<<b<<endl;
-    points += 100;
-    return points;
+    for(int j = 0; j < size; j++)
+    {
+      cin>>board[i][j];
+      
+      if(board[i][j] == 3)
+      {
+        possibleMoves.push_back(i);
+        possibleMoves.push_back(j);
+        points.push_back(0);
+      }
+    }
   }
+  cin>>playerID;
+}
+
+void evaluateCorners(vector<int>& possibleMoves, vector<int>& points)
+{
+  int j = 0;
   
-  //Punishes making moves that are directly diagnol to a corner
-  if(((a == 1) || (a == 8)) && ((b == 1) || (b == 8)))
+  for(int i = 0; i < possibleMoves.size(); i+=2)
   {
-    //If corner is filled by me then a move in this area is strongly encouraged
-    if((a - 1) == 0)
+    if(((possibleMoves[i] == 0) || (possibleMoves[i] == 9))&& ((possibleMoves[i + 1] == 0) || (possibleMoves[i + 1] == 9)))
     {
-      if((b - 1) == 0)
-      {
-        //I am close to 0,0
-        if(board[a-1][b-1] == playerID)
-        {
-          points += 20;
-        }
-        else
-        {
-          points -= 20;
-        }
-      }
-      if((b + 1) == 9)
-      {
-        //I am close to 0,9
-        if(board[a-1][b+1] == playerID)
-        {
-          points += 20;
-        }
-        else
-        {
-          points -= 20;
-        }
-      }
-    }      
-    else if((a + 1) == 9)
+      points[j] = 100;
+    }
+    else
     {
-      if((b - 1) == 0)
+      points[j] = 0;
+    }
+    
+    j++;
+  }
+}
+
+void evaluateNearCorners(int board[][size], vector<int>& possibleMoves, vector<int>& points)
+{
+  int j =0;
+
+  for(int i = 0; i < possibleMoves.size(); i+=2)
+  {
+    if(((possibleMoves[i] == 1) || (possibleMoves[i] == 8))&& ((possibleMoves[i + 1] == 1) || (possibleMoves[i + 1] == 8)))
+    {
+      if((possibleMoves[i] - 1) == 0)
       {
-        //I am close to 9,0
-        if(board[a+1][b-1] == playerID)
+        if((possibleMoves[i + 1] - 1) == 0)
         {
-          points += 20;
+          //I am near 0,0
+          if((board[0][0] == 0) || (board[0][0] != playerID))
+          {
+            points[j] += 0;
+          }
+          else
+          {
+            points[j] += 5;
+          }
         }
-        else
+        else if((possibleMoves[i + 1] + 1) == 9)
         {
-          points -= 20;
+          //I am near 0,9
+          if((board[0][9] == 0) || (board[0][9] != playerID))
+          {
+            points[j] += 0;
+          }
+          else
+          {
+            points[j] += 5;
+          }
         }
       }
-      if((b + 1) == 9)
+      else if((possibleMoves[i] + 1) == 9)
       {
-        //I am close to 9,9
-        if(board[a+1][b+1] == playerID)
+        if((possibleMoves[i + 1] - 1) == 0)
         {
-          points += 20;
+          //I am near 9,0
+          if((board[9][0] == 0) || (board[9][0] != playerID))
+          {
+            points[j] += 0;
+          }
+          else
+          {
+            points[j] += 5;
+          }
         }
-        else
+        else if((possibleMoves[i + 1] + 1) == 9)
         {
-          points -= 20;
+          //I am near 9,9
+          if((board[9][9] == 0) || (board[9][9] != playerID))
+          {
+            points[j] += 0;
+          }
+          else
+          {
+            points[j] += 5;
+          }
         }
       }
     }
     else
     {
-      points -= 50;
+      points[j] += 5;
     }
-  }
-  
-  //Discourages putting stones near edges especially when surrounded
-  if((a == 0) || (a == 9))
-  {
-    if(((b - 1) >= 0) ||((b + 1) <= 9))
-    {
-      if((board[a][b - 1] != playerID) && (board[a][b + 1] != playerID))
-      {
-        points -= 20;
-      }
-      else
-      {
-        points -= 10;
-      }
-    }  
-  }
-  else if((b == 0) || (b == 9))
-  {
-    if(((a - 1) >= 0) ||((a + 1) <= 9))
-    {
-      if((board[a - 1][b] != playerID) && (board[a + 1][b] != playerID))
-      {
-        points -= 20;
-      }
-      else
-      {
-        points -= 10;
-      }
-    }      
     
+    j++;
   }
-
-  return points;
-}
-
-
-//WIP  
+} 
+       
+       
 void firstMove(vector<int>& possibleMoves)
 {
   cout<<possibleMoves[0]<<" "<<possibleMoves[1]<<endl; 
+}  
+
+
+void displayPoints(vector<int>& points)
+{
+  for(int j = 0; j < points.size(); j++)
+  {
+    cout<<points[j]<<" ";
+  }   
+  cout<<endl;
+}  
+
+
+void evaluateHorizontal(int board[][size], vector<int>& possibleMoves, vector<int>& points)
+{
+  int counter = 0, zero = 0, player1 = 0, player2 = 0, possible = 0, tempPoints = 0;
+  int arr[size];
+  bool skipOnce, skipTwice;
+  
+  for(int i = 0; i < possibleMoves.size(); i+=2)
+  {
+    tempPoints = 0;
+    
+    for(int j = 0; j < size; j++)
+    {
+      if(board[j][possibleMoves[i + 1]] == 0)
+      {
+        zero++;
+      }
+      else if(board[j][possibleMoves[i + 1]] == 1)
+      {
+        player1++;
+      }
+      else if(board[j][possibleMoves[i + 1]] == 2)
+      {
+        player2++;
+      }
+      else if(board[j][possibleMoves[i + 1]] == 3)
+      {
+        possible++;
+      }
+      
+      arr[j] = board[j][possibleMoves[i + 1]];
+    }
+    
+    skipOnce = false;
+    
+    for(int j = possibleMoves[i]; j < size; j++)
+    {
+      if(skipOnce == true)
+      {
+        if((arr[j] == 0) || (arr[j] == 3) || (arr[j] != playerID))
+        {
+          tempPoints += 0;
+        }
+        else
+        {
+          skipTwice = false;
+          
+          for(int k = j; k < size; k++)
+          {
+            if(skipTwice == true)
+            {
+              if(arr[k] == playerID)
+              {
+                tempPoints += 2;
+              }
+              else if(arr[k] == 0)
+              {
+                tempPoints += 0;
+              }
+              else
+              {
+                tempPoints -= 2;
+                break;
+              } 
+            }
+            
+            skipTwice = true;
+          }
+        }
+      }
+      
+      skipOnce = true;   
+    }
+    
+    points[counter] += tempPoints;
+    counter++;
+  }
+}     
+
+
+void finalOutput(vector<int>& possibleMoves, int index)
+{
+  int counter = 0;
+  
+  for(int i = 0; i < possibleMoves.size(); i+=2)
+  {
+    if(counter == index)
+    {
+      cout<<possibleMoves[i]<<" "<<possibleMoves[i + 1]<<endl;
+      break;
+    }
+    counter++;
+  }
+}  
+
+int highestScore(vector<int>& points)
+{
+  int largest, index = 0;
+  
+  largest = points[0];
+  
+  for(int i = 1; i < points.size() - 1; i++)
+  {
+    if(largest < points[i])
+    {
+      largest = points[i];
+      index = i;
+    }
+  }
+  
+  return index;  
 }
+
