@@ -17,10 +17,13 @@ void finalOutput(vector<int>& possibleMoves, int index);
 void evaluateCorners(vector<int>& possibleMoves, vector<int>& points);
 void readBoard(int board[][size], vector<int>& possibleMoves, vector<int>& points);
 void evaluateVertical(int board[][size], vector<int>& possibleMoves, vector<int>& points);
+void evaluateEarlyGame(vector<int>& possibleMoves, vector<int>& points);
+void protectEarlyGame(int board[][size], vector<int>& possibleMoves, vector<int>& points);
 void evaluateHorizontal(int board[][size], vector<int>& possibleMoves, vector<int>& points);
 void evaluateDiagCorners(int board[][size], vector<int>& possibleMoves, vector<int>& points);
 void evaluateNearCorners(int board[][size], vector<int>& possibleMoves, vector<int>& points);
 void evaluateFurtherCorners(int board[][size], vector<int>& possibleMoves, vector<int>& points);
+
 
 
 int main()
@@ -32,17 +35,18 @@ int main()
   readBoard(board, moves, points);
   
   evaluateCorners(moves, points);
+  evaluateEarlyGame(moves, points);
   evaluateDiagCorners(board, moves, points);
   evaluateNearCorners(board, moves, points);
   evaluateFurtherCorners(board, moves, points);
   evaluateVertical(board, moves, points);
+  evaluateHorizontal(board, moves, points);
   
   
   
   score = highestScore(points);
   
   finalOutput(moves, score);
-
   
   return 0;
 }
@@ -76,7 +80,7 @@ int findLastVal(vector<int> arr, int a)
 
 int highestScore(vector<int>& points)
 {
-  int index = 0, largest = 0;
+  int index = 0, largest = -9999;
   int temp = points.size();
  
   for(int i = 0; i < temp; i++)
@@ -325,9 +329,6 @@ void evaluateVertical(int board[][size], vector<int>& possibleMoves, vector<int>
       }        
     }
 
-      
-    
-    
     if((opp == 0) && (holes == 0))
     {
       points[counter] += 50;
@@ -492,9 +493,6 @@ void evaluateHorizontal(int board[][size], vector<int>& possibleMoves, vector<in
       }        
     }
 
-      
-    
-    
     if((opp == 0) && (holes == 0))
     {
       points[counter] += 50;
@@ -536,6 +534,68 @@ void evaluateHorizontal(int board[][size], vector<int>& possibleMoves, vector<in
   }
 }
 
+void evaluateEarlyGame(vector<int>& possibleMoves, vector<int>& points)
+{
+  int counter = 0;
+
+  for(int i = 0; i < possibleMoves.size(); i+= 2)
+  {
+    if((possibleMoves[i] == 2) && (possibleMoves[i + 1] == 2))
+    {
+      //Opens the possibility for a move near 0 0
+      points[counter] += 45;
+    }
+    else if((possibleMoves[i] == 7) && (possibleMoves[i + 1] == 2))
+    {
+      //Opens the possibility for a move near 9 0
+      points[counter] += 45;
+    }
+    else if((possibleMoves[i] == 2) && (possibleMoves[i + 1] == 7))
+    {
+      //Opens the possibility for a move near 0 9
+      points[counter] += 45;
+    }
+    else if((possibleMoves[i] == 7) && (possibleMoves[i + 1] == 7))
+    {
+      //Opens the possibility for a move near 9 9
+      points[counter] += 45;
+    }
+    
+    counter++;
+  } 
+}
+
+void protectEarlyGame(int board[][size], vector<int>& possibleMoves, vector<int>& points)
+{
+  int counter = 0;
+
+  for(int i = 0; i < possibleMoves.size(); i+= 2)
+  {
+    if(((possibleMoves[i] == 2) && (possibleMoves[i + 1] == 1)) || ((possibleMoves[i] == 1) && (possibleMoves[i + 1] == 2)))
+    {
+      //Protects the area near 0 0
+      points[counter] -= 30;
+    }
+    else if(((possibleMoves[i] == 7) && (possibleMoves[i + 1] == 1)) || ((possibleMoves[i] == 8) && (possibleMoves[i + 1] == 2)))
+    {
+      //Protects the area near 9 0
+      points[counter] -= 30;
+    }
+    else if(((possibleMoves[i] == 1) && (possibleMoves[i + 1] == 7)) || ((possibleMoves[i] == 2) && (possibleMoves[i + 1] == 8)))
+    {
+      //Protects the area near 0 9
+      points[counter] -= 30;
+    }
+    else if(((possibleMoves[i] == 8) && (possibleMoves[i + 1] == 7)) || ((possibleMoves[i] == 7) && (possibleMoves[i + 1] == 8)))
+    {
+      //Protects the area near 9 9
+      points[counter] -= 30;
+    }
+    
+    counter++;
+  }   
+}
+
 void evaluateDiagCorners(int board[][size], vector<int>& possibleMoves, vector<int>& points)
 {
   int counter = 0;
@@ -553,7 +613,7 @@ void evaluateDiagCorners(int board[][size], vector<int>& possibleMoves, vector<i
         }
         else if((board[0][0] == 0) || (board[0][0] == opponentID))
         {
-          points[counter] += -200;
+          points[counter] += -150;
         }
       }
       else if((possibleMoves[i] == 1) && (possibleMoves[i + 1] == 8))
@@ -565,7 +625,7 @@ void evaluateDiagCorners(int board[][size], vector<int>& possibleMoves, vector<i
         }
         else if((board[0][9] == 0) || (board[0][9] == opponentID))
         {
-          points[counter] += -200;
+          points[counter] += -150;
         }
       }
       else if((possibleMoves[i] == 8) && (possibleMoves[i + 1] == 1))
@@ -577,7 +637,7 @@ void evaluateDiagCorners(int board[][size], vector<int>& possibleMoves, vector<i
         }
         else if((board[9][0] == 0) || (board[9][0] == opponentID))
         {
-          points[counter] += -200;
+          points[counter] += -150;
         }
       }
       else if((possibleMoves[i] == 8) && (possibleMoves[i + 1] == 8))
@@ -589,12 +649,8 @@ void evaluateDiagCorners(int board[][size], vector<int>& possibleMoves, vector<i
         }
         else if((board[9][9] == 0) || (board[9][9] == opponentID))
         {
-          points[counter] += -200;
+          points[counter] += -150;
         }
-      }
-      else
-      {
-        points[counter] -= -50;
       }
     }
     
@@ -617,7 +673,7 @@ void evaluateNearCorners(int board[][size], vector<int>& possibleMoves, vector<i
       }
       else
       {
-        points[counter] += -150;
+        points[counter] += -300;
       }
     }
     else if(((possibleMoves[i] == 8) && (possibleMoves[i + 1] == 0)) || ((possibleMoves[i] == 9) && (possibleMoves[i + 1] == 1)))
@@ -629,7 +685,7 @@ void evaluateNearCorners(int board[][size], vector<int>& possibleMoves, vector<i
       }
       else
       {
-        points[counter] += -150;
+        points[counter] += -300;
       }       
     }
     else if(((possibleMoves[i] == 0) && (possibleMoves[i + 1] == 8)) || ((possibleMoves[i] == 1) && (possibleMoves[i + 1] == 9)))
@@ -641,7 +697,7 @@ void evaluateNearCorners(int board[][size], vector<int>& possibleMoves, vector<i
       }
       else
       {
-        points[counter] += -150;
+        points[counter] += -300;
       }       
     }
     else if(((possibleMoves[i] == 8) && (possibleMoves[i + 1] == 9)) || ((possibleMoves[i] == 9) && (possibleMoves[i + 1] == 8)))
@@ -653,7 +709,7 @@ void evaluateNearCorners(int board[][size], vector<int>& possibleMoves, vector<i
       }
       else
       {
-        points[counter] += -150;
+        points[counter] += -300;
       }       
     }
     
@@ -676,7 +732,7 @@ void evaluateFurtherCorners(int board[][size], vector<int>& possibleMoves, vecto
       }
       else if(board[0][0] == 0)
       {
-        points[counter] += 10;
+        points[counter] += 30;
       }
       else
       {
@@ -692,7 +748,7 @@ void evaluateFurtherCorners(int board[][size], vector<int>& possibleMoves, vecto
       }
       else if(board[9][0] == 0)
       {
-        points[counter] += 10;
+        points[counter] += 30;
       }
       else
       {
@@ -708,7 +764,7 @@ void evaluateFurtherCorners(int board[][size], vector<int>& possibleMoves, vecto
       }
       else if(board[0][9] == 0)
       {
-        points[counter] += 10;
+        points[counter] += 30;
       }
       else
       {
@@ -724,7 +780,7 @@ void evaluateFurtherCorners(int board[][size], vector<int>& possibleMoves, vecto
       }
       else if(board[9][9] == 0)
       {
-        points[counter] += 10;
+        points[counter] += 30;
       }
       else
       {
