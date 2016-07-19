@@ -6,49 +6,48 @@ using namespace std;
 int playerID, opponentID;
 const int size = 10;
 
-int findFirstVal(int arr[size], int a);
-int findFirstVal(int arr[size], int a, int b, int c);
-int findLastVal(int arr[size], int a);
-int findLastVal(int arr[size], int a, int b, int c);
+int findFirstVal(vector<int> arr, int a);
+int findLastVal(vector<int> arr, int a);
 int highestScore(vector<int>& points);
 void displayBoard(int board[][size]);
 void displayPoints(vector<int>& points);
+void displayVector(vector<int>& vec);
 void displayMoves(vector<int>& possibleMoves);
 void finalOutput(vector<int>& possibleMoves, int index);
 void evaluateCorners(vector<int>& possibleMoves, vector<int>& points);
 void readBoard(int board[][size], vector<int>& possibleMoves, vector<int>& points);
+void evaluateVertical(int board[][size], vector<int>& possibleMoves, vector<int>& points);
 void evaluateHorizontal(int board[][size], vector<int>& possibleMoves, vector<int>& points);
 void evaluateDiagCorners(int board[][size], vector<int>& possibleMoves, vector<int>& points);
+void evaluateNearCorners(int board[][size], vector<int>& possibleMoves, vector<int>& points);
+void evaluateFurtherCorners(int board[][size], vector<int>& possibleMoves, vector<int>& points);
 
 
 int main()
 {
-  int vectorSize, scoreSize, score;
+  int score;
   vector<int> moves, points;
   int board[size][size] = {0};
 
   readBoard(board, moves, points);
-
-  vectorSize = moves.size();
-  scoreSize = points.size();
-  //scoreSize = vectorSize / 2;
   
   evaluateCorners(moves, points);
   evaluateDiagCorners(board, moves, points);
-  evaluateHorizontal(board, moves, points);
+  evaluateNearCorners(board, moves, points);
+  evaluateFurtherCorners(board, moves, points);
+  evaluateVertical(board, moves, points);
   
   
   
   score = highestScore(points);
   
   finalOutput(moves, score);
-  //displayMoves(moves);
-  //displayPoints(points);
+
   
   return 0;
 }
 
-int findFirstVal(int arr[size], int a)
+int findFirstVal(vector<int> arr, int a)
 {
   for(int i = 0; i < size; i++)
   {
@@ -61,21 +60,8 @@ int findFirstVal(int arr[size], int a)
   return -1;
 }
 
-int findFirstVal(int arr[size], int a, int b, int c)
-{
-  for(int i = 0; i < size; i++)
-  {
-    if((arr[i] != a) && (arr[i] != b) && (arr[i] != c))
-    {
-      return i;
-    }
-  }
-  
-  return -1;  
-}
 
-
-int findLastVal(int arr[size], int a)
+int findLastVal(vector<int> arr, int a)
 {
   for(int i = size - 1; i >= 0; i--)
   {
@@ -86,35 +72,21 @@ int findLastVal(int arr[size], int a)
   }
   
   return -1;
-}
-
-int findLastVal(int arr[size], int a, int b, int c)
-{
-  for(int i = size - 1; i >= 0; i--)
-  {
-    if((arr[i] != a) && (arr[i] != b) && (arr[i] != c))
-    {
-      return i;
-    }
-  }
-  
-  return -1;  
 }
 
 int highestScore(vector<int>& points)
 {
-  int largest, index = 0;
-  
-  largest = points[0];
-  
-  for(int i = 1; i < points.size() - 1; i++)
+  int index = 0, largest = 0;
+  int temp = points.size();
+ 
+  for(int i = 0; i < temp; i++)
   {
-    if(largest < points[i])
+    if(points[i] > largest)
     {
       largest = points[i];
       index = i;
     }
-  }
+  }    
   
   return index;  
 }
@@ -133,16 +105,32 @@ void displayBoard(int board[][size])
 
 void displayPoints(vector<int>& points)
 {
-  for(int j = 0; j < points.size(); j++)
+  int temp = points.size();
+  
+  for(int j = 0; j < temp; j++)
   {
     cout<<points[j]<<" ";
   }   
   cout<<endl;
 }  
 
+void displayVector(vector<int>& vec)
+{
+  int temp = vec.size();
+  
+  for(int j = 0; j < temp; j++)
+  {
+    cout<<vec[j]<<" ";
+  }   
+  cout<<endl; 
+  
+}
+
 void displayMoves(vector<int>& possibleMoves)
 {
-  for(int i = 0; i < possibleMoves.size(); i+=2)
+  int temp = possibleMoves.size();
+  
+  for(int i = 0; i < temp; i+=2)
   {
     cout<<"("<<possibleMoves[i]<<", "<<possibleMoves[i + 1]<<"), ";
   }
@@ -213,67 +201,141 @@ void readBoard(int board[][size], vector<int>& possibleMoves, vector<int>& point
     opponentID = 1;
   }
 }  
-void evaluateHorizontal(int board[][size], vector<int>& possibleMoves, vector<int>& points)
+
+void evaluateVertical(int board[][size], vector<int>& possibleMoves, vector<int>& points)
 {
-  int arr[size];
-  int coordA, coordB, index, temp;
-  int playerScore = 0, opponentScore = 0;
-  int zeroes = 0, ones = 0, twos = 0, threes = 0, counter = 0;
-  int zeroA, zeroB, threeA, threeB, playerIDA, playerIDB, nonPlayerIDA, nonPlayerIDB; 
+  int coordA, coordB, index, opp, holes, playerScore, opponentScore, first, last, counter = 0;;
   vector<int> vec;
-  bool continuous, skipOnce;
-  
+  bool skipOnce;
   
   for(int i = 0; i < possibleMoves.size(); i+=2)
   {
+    index = 0;
+    first = -1;
+    last = 10;
+    opp = 0;
+    holes = 0;
+    playerScore = 0;
+    playerScore = 0;
+    opponentScore = 0;
+ 
     //Grab values and place them in an array and a vector
     for(int j = 0; j < size; j++)
     {
-      arr[j] = board[j][possibleMoves[i + 1]];
       vec.push_back(board[j][possibleMoves[i + 1]]);
     }
-
+    
     coordA = possibleMoves[i];
     coordB = possibleMoves[i + 1];
-    
-    //Find the first instance where each value occurs
-    zeroA = findFirstVal(arr, 0);
-    threeA = findFirstVal(arr, 3);
-    playerIDA = findFirstVal(arr, playerID);
-    nonPlayerIDA = findFirstVal(arr, playerID, 0, 3);
-
-    //Find the last instance where each value occurs
-    zeroB = findLastVal(arr, 0);
-    threeB = findLastVal(arr, 3);
-    playerIDB = findLastVal(arr, playerID);
-    nonPlayerIDB = findLastVal(arr, playerID, 0, 3);
-
-    
+       
     vec[coordA] = playerID;
-    
-    for(int j = coordA; j < size; j++)
+
+    //Replace all 3's in the vector with 0's
+    for(int k = 0; k < size; k++)
     {
-      if((vec[j] == nonPlayerIDA) || (vec[j] == playerID))
+      if(vec[k] == 3)
       {
-        vec[j] = playerID;
-      }
-      else 
-      {
-        break;
+        vec[k] = 0;
       }
     }
     
-    for(int j = coordA; j > 0; j--)
+    skipOnce = false;
+    
+    for(int j = coordA; j > -1; j--)
     {
-      if((vec[j] == nonPlayerIDA) || (vec[j] == playerID))
+      if(skipOnce == true)
       {
-        vec[j] = playerID;
+        if(vec[j] == playerID)
+        {
+          first = j;
+          break;
+        }
       }
-      else 
+      
+      skipOnce = true;
+    }
+   
+    skipOnce = false;
+        
+    for(int j = coordA; j < size; j++)
+    {
+      if(skipOnce == true)
       {
-        break;
+        if(vec[j] == playerID)
+        {
+          last = j;
+          break;
+        }
       }
-    } 
+      
+      skipOnce = true;
+    }      
+    
+    if(first != -1)
+    {
+      for(int k = first; k < coordA; k++)
+      {
+        if(vec[k] == opponentID)
+        {
+          vec[k] = playerID;
+        }
+        else 
+        {
+          break;
+        }
+      }
+
+      for(int k = first; k < coordA; k++)
+      {
+        if(vec[k] == 0)
+        {
+          holes++;
+        }
+        else if(vec[k] == opponentID)
+        {
+          opp++;
+        }
+      }
+    }
+    
+    if(last != 10)
+    {
+      for(int k = coordA; k <= last; k++)
+      {
+        if(vec[k] == opponentID)
+        {
+          vec[k] = playerID;
+        }
+        else 
+        {
+          break;
+        }
+      }
+      
+      for(int k = coordA; k <= last; k++)
+      {
+        if(vec[k] == 0)
+        {
+          holes++;
+        }
+        else if(vec[k] == opponentID)
+        {
+          opp++;
+        }
+      }        
+    }
+
+      
+    
+    
+    if((opp == 0) && (holes == 0))
+    {
+      points[counter] += 50;
+    }
+    else if(holes == 0)
+    {
+      points[counter] += 25;
+    }
     
     
     for(int j = 0; j < size; j++)
@@ -288,71 +350,187 @@ void evaluateHorizontal(int board[][size], vector<int>& possibleMoves, vector<in
       }
     }
     
+    if(playerScore > opponentScore)
+    {
+      points[counter] += playerScore * 2;
+    }
+    
     if(opponentScore == 0)
     {
-      points[counter] += (5 * playerScore);
+      points[counter] += (playerScore * playerScore);
+    }
+    else if(opponentScore > 1)
+    {
+      points[counter] += -(playerScore * playerScore);
     }
     
-    if(opponentScore >= 1)
-    {
-      points[counter] += -(3 * opponentScore);
-    }
-    
-
-
- //Find the index where playerID occurs
-  for(int i = 0; i < size; i++)
-  {
-    if(vec[i] == playerID)
-    {
-      index = i;
-      break;
-    }
+    vec.clear();
+    counter++;
   }
+}
+
+void evaluateHorizontal(int board[][size], vector<int>& possibleMoves, vector<int>& points)
+{
+  int coordA, coordB, index, opp, holes, playerScore, opponentScore, first, last, counter = 0;;
+  vector<int> vec;
+  bool skipOnce;
   
-  skipOnce == false;
-  
-  for(int i = index; i < size; i++)
+  for(int i = 0; i < possibleMoves.size(); i+=2)
   {
-    if(vec[i] == playerID)
+    index = 0;
+    first = -1;
+    last = 10;
+    opp = 0;
+    holes = 0;
+    playerScore = 0;
+    playerScore = 0;
+    opponentScore = 0;
+ 
+    //Grab values and place them in an array and a vector
+    for(int j = 0; j < size; j++)
     {
-      continuous = true;
-    }
-    else
-    {
-      temp = i; 
-      continuous = false;
+      vec.push_back(board[possibleMoves[i + 1]][j]);
     }
     
-    if(continuous == false)
+    coordA = possibleMoves[i];
+    coordB = possibleMoves[i + 1];
+       
+    vec[coordB] = playerID;
+
+    //Replace all 3's in the vector with 0's
+    for(int k = 0; k < size; k++)
     {
-      for(int i = temp; i < size; i++)
+      if(vec[k] == 3)
       {
-        if(skipOnce == true)
-        {
-          if(vec[i] == 0)
-          {
-            points[counter] += 20;
-          }
-          else if(vec[i] == opponentID)
-          {
-            points[counter] += -50;
-          }
-          else if(vec[i] == 3)
-          {
-            points[counter] += 5;
-          }
-          else
-          {
-            points[counter] += 0;
-          }
-        }
-          
-        skipOnce = true;
+        vec[k] = 0;
       }
     }
-  }
- 
+    
+    skipOnce = false;
+    
+    for(int j = coordB; j > -1; j--)
+    {
+      if(skipOnce == true)
+      {
+        if(vec[j] == playerID)
+        {
+          first = j;
+          break;
+        }
+      }
+      
+      skipOnce = true;
+    }
+   
+    skipOnce = false;
+        
+    for(int j = coordB; j < size; j++)
+    {
+      if(skipOnce == true)
+      {
+        if(vec[j] == playerID)
+        {
+          last = j;
+          break;
+        }
+      }
+      
+      skipOnce = true;
+    }      
+    
+    if(first != -1)
+    {
+      for(int k = first; k < coordB; k++)
+      {
+        if(vec[k] == opponentID)
+        {
+          vec[k] = playerID;
+        }
+        else 
+        {
+          break;
+        }
+      }
+
+      for(int k = first; k < coordB; k++)
+      {
+        if(vec[k] == 0)
+        {
+          holes++;
+        }
+        else if(vec[k] == opponentID)
+        {
+          opp++;
+        }
+      }
+    }
+    
+    if(last != 10)
+    {
+      for(int k = coordB; k <= last; k++)
+      {
+        if(vec[k] == opponentID)
+        {
+          vec[k] = playerID;
+        }
+        else 
+        {
+          break;
+        }
+      }
+      
+      for(int k = coordB; k <= last; k++)
+      {
+        if(vec[k] == 0)
+        {
+          holes++;
+        }
+        else if(vec[k] == opponentID)
+        {
+          opp++;
+        }
+      }        
+    }
+
+      
+    
+    
+    if((opp == 0) && (holes == 0))
+    {
+      points[counter] += 50;
+    }
+    else if(holes == 0)
+    {
+      points[counter] += 25;
+    }
+    
+    
+    for(int j = 0; j < size; j++)
+    {
+      if(vec[j] == playerID)
+      {
+        playerScore++;
+      }
+      else if(vec[j] == opponentID)
+      {
+        opponentScore++;
+      }
+    }
+    
+    if(playerScore > opponentScore)
+    {
+      points[counter] += playerScore * 2;
+    }
+    
+    if(opponentScore == 0)
+    {
+      points[counter] += (playerScore * playerScore);
+    }
+    else if(opponentScore > 1)
+    {
+      points[counter] += -(playerScore * playerScore);
+    }
+    
     vec.clear();
     counter++;
   }
@@ -419,11 +597,125 @@ void evaluateDiagCorners(int board[][size], vector<int>& possibleMoves, vector<i
         points[counter] -= -50;
       }
     }
-    else
-    {
-      points[counter] += 5;
-    }
     
     counter++;
   }
+}
+
+void evaluateNearCorners(int board[][size], vector<int>& possibleMoves, vector<int>& points)
+{
+  int counter = 0;
+
+  for(int i = 0; i < possibleMoves.size(); i+= 2)
+  {
+    if(((possibleMoves[i] == 0) && (possibleMoves[i + 1] == 1)) || ((possibleMoves[i] == 1) && (possibleMoves[i + 1] == 0)))
+    {
+      //There is a possible move near corner 0 0
+      if(board[0][0] == playerID)
+      {
+        points[counter] += 60;
+      }
+      else
+      {
+        points[counter] += -100;
+      }
+    }
+    else if(((possibleMoves[i] == 8) && (possibleMoves[i + 1] == 0)) || ((possibleMoves[i] == 9) && (possibleMoves[i + 1] == 1)))
+    {
+      //There is a possible move near corner 9 0
+      if(board[9][0] == playerID)
+      {
+        points[counter] += 60;
+      }
+      else
+      {
+        points[counter] += -100;
+      }       
+    }
+    else if(((possibleMoves[i] == 0) && (possibleMoves[i + 1] == 8)) || ((possibleMoves[i] == 1) && (possibleMoves[i + 1] == 9)))
+    {
+      //There is a possible move near corner 0 9
+      if(board[0][9] == playerID)
+      {
+        points[counter] += 60;
+      }
+      else
+      {
+        points[counter] += -100;
+      }       
+    }
+    else if(((possibleMoves[i] == 8) && (possibleMoves[i + 1] == 9)) || ((possibleMoves[i] == 9) && (possibleMoves[i + 1] == 8)))
+    {
+      //There is a possible move near corner 9 9
+      if(board[9][9] == playerID)
+      {
+        points[counter] += 60;
+      }
+      else
+      {
+        points[counter] += -100;
+      }       
+    }
+    
+    counter++;
+  }  
+}
+
+void evaluateFurtherCorners(int board[][size], vector<int>& possibleMoves, vector<int>& points)
+{
+  int counter = 0;
+
+  for(int i = 0; i < possibleMoves.size(); i+= 2)
+  {
+    if(((possibleMoves[i] == 2) && (possibleMoves[i + 1] == 0)) || ((possibleMoves[i] == 0) && (possibleMoves[i + 1] == 2)))
+    {
+      //There is a possible move near corner 0 0
+      if(board[0][0] == playerID)
+      {
+        points[counter] += 60;
+      }
+      else
+      {
+        points[counter] += -100;
+      }
+    }
+    else if(((possibleMoves[i] == 7) && (possibleMoves[i + 1] == 0)) || ((possibleMoves[i] == 9) && (possibleMoves[i + 1] == 2)))
+    {
+      //There is a possible move near corner 9 0
+      if(board[9][0] == playerID)
+      {
+        points[counter] += 60;
+      }
+      else
+      {
+        points[counter] += -100;
+      }       
+    }
+    else if(((possibleMoves[i] == 0) && (possibleMoves[i + 1] == 7)) || ((possibleMoves[i] == 2) && (possibleMoves[i + 1] == 9)))
+    {
+      //There is a possible move near corner 0 9
+      if(board[0][9] == playerID)
+      {
+        points[counter] += 60;
+      }
+      else
+      {
+        points[counter] += -100;
+      }       
+    }
+    else if(((possibleMoves[i] == 9) && (possibleMoves[i + 1] == 7)) || ((possibleMoves[i] == 7) && (possibleMoves[i + 1] == 9)))
+    {
+      //There is a possible move near corner 9 9
+      if(board[9][9] == playerID)
+      {
+        points[counter] += 60;
+      }
+      else
+      {
+        points[counter] += -100;
+      }       
+    }
+    
+    counter++;
+  }  
 }
