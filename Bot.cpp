@@ -553,7 +553,7 @@ void evaluateDiagCorners(int board[][size], vector<int>& possibleMoves, vector<i
         }
         else if((board[0][0] == 0) || (board[0][0] == opponentID))
         {
-          points[counter] += -60;
+          points[counter] += -200;
         }
       }
       else if((possibleMoves[i] == 1) && (possibleMoves[i + 1] == 8))
@@ -565,7 +565,7 @@ void evaluateDiagCorners(int board[][size], vector<int>& possibleMoves, vector<i
         }
         else if((board[0][9] == 0) || (board[0][9] == opponentID))
         {
-          points[counter] += -60;
+          points[counter] += -200;
         }
       }
       else if((possibleMoves[i] == 8) && (possibleMoves[i + 1] == 1))
@@ -577,7 +577,7 @@ void evaluateDiagCorners(int board[][size], vector<int>& possibleMoves, vector<i
         }
         else if((board[9][0] == 0) || (board[9][0] == opponentID))
         {
-          points[counter] += -60;
+          points[counter] += -200;
         }
       }
       else if((possibleMoves[i] == 8) && (possibleMoves[i + 1] == 8))
@@ -589,7 +589,7 @@ void evaluateDiagCorners(int board[][size], vector<int>& possibleMoves, vector<i
         }
         else if((board[9][9] == 0) || (board[9][9] == opponentID))
         {
-          points[counter] += -60;
+          points[counter] += -200;
         }
       }
       else
@@ -617,7 +617,7 @@ void evaluateNearCorners(int board[][size], vector<int>& possibleMoves, vector<i
       }
       else
       {
-        points[counter] += -100;
+        points[counter] += -150;
       }
     }
     else if(((possibleMoves[i] == 8) && (possibleMoves[i + 1] == 0)) || ((possibleMoves[i] == 9) && (possibleMoves[i + 1] == 1)))
@@ -629,7 +629,7 @@ void evaluateNearCorners(int board[][size], vector<int>& possibleMoves, vector<i
       }
       else
       {
-        points[counter] += -100;
+        points[counter] += -150;
       }       
     }
     else if(((possibleMoves[i] == 0) && (possibleMoves[i + 1] == 8)) || ((possibleMoves[i] == 1) && (possibleMoves[i + 1] == 9)))
@@ -641,7 +641,7 @@ void evaluateNearCorners(int board[][size], vector<int>& possibleMoves, vector<i
       }
       else
       {
-        points[counter] += -100;
+        points[counter] += -150;
       }       
     }
     else if(((possibleMoves[i] == 8) && (possibleMoves[i + 1] == 9)) || ((possibleMoves[i] == 9) && (possibleMoves[i + 1] == 8)))
@@ -653,7 +653,7 @@ void evaluateNearCorners(int board[][size], vector<int>& possibleMoves, vector<i
       }
       else
       {
-        points[counter] += -100;
+        points[counter] += -150;
       }       
     }
     
@@ -674,6 +674,10 @@ void evaluateFurtherCorners(int board[][size], vector<int>& possibleMoves, vecto
       {
         points[counter] += 60;
       }
+      else if(board[0][0] == 0)
+      {
+        points[counter] += 10;
+      }
       else
       {
         points[counter] += -100;
@@ -686,10 +690,14 @@ void evaluateFurtherCorners(int board[][size], vector<int>& possibleMoves, vecto
       {
         points[counter] += 60;
       }
+      else if(board[9][0] == 0)
+      {
+        points[counter] += 10;
+      }
       else
       {
         points[counter] += -100;
-      }       
+      }      
     }
     else if(((possibleMoves[i] == 0) && (possibleMoves[i + 1] == 7)) || ((possibleMoves[i] == 2) && (possibleMoves[i + 1] == 9)))
     {
@@ -698,10 +706,14 @@ void evaluateFurtherCorners(int board[][size], vector<int>& possibleMoves, vecto
       {
         points[counter] += 60;
       }
+      else if(board[0][9] == 0)
+      {
+        points[counter] += 10;
+      }
       else
       {
         points[counter] += -100;
-      }       
+      }        
     }
     else if(((possibleMoves[i] == 9) && (possibleMoves[i + 1] == 7)) || ((possibleMoves[i] == 7) && (possibleMoves[i + 1] == 9)))
     {
@@ -710,10 +722,14 @@ void evaluateFurtherCorners(int board[][size], vector<int>& possibleMoves, vecto
       {
         points[counter] += 60;
       }
+      else if(board[9][9] == 0)
+      {
+        points[counter] += 10;
+      }
       else
       {
         points[counter] += -100;
-      }       
+      }     
     }
     
     counter++;
