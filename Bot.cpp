@@ -543,22 +543,22 @@ void evaluateEarlyGame(vector<int>& possibleMoves, vector<int>& points)
     if((possibleMoves[i] == 2) && (possibleMoves[i + 1] == 2))
     {
       //Opens the possibility for a move near 0 0
-      points[counter] += 45;
+      points[counter] += 50;
     }
     else if((possibleMoves[i] == 7) && (possibleMoves[i + 1] == 2))
     {
       //Opens the possibility for a move near 9 0
-      points[counter] += 45;
+      points[counter] += 50;
     }
     else if((possibleMoves[i] == 2) && (possibleMoves[i + 1] == 7))
     {
       //Opens the possibility for a move near 0 9
-      points[counter] += 45;
+      points[counter] += 50;
     }
     else if((possibleMoves[i] == 7) && (possibleMoves[i + 1] == 7))
     {
       //Opens the possibility for a move near 9 9
-      points[counter] += 45;
+      points[counter] += 50;
     }
     
     counter++;
@@ -609,11 +609,11 @@ void evaluateDiagCorners(int board[][size], vector<int>& possibleMoves, vector<i
         //There is a possible move at 1 1
         if(board[0][0] == playerID)
         {
-          points[counter] += 60;
+          points[counter] += 70;
         }
         else if((board[0][0] == 0) || (board[0][0] == opponentID))
         {
-          points[counter] += -150;
+          points[counter] += -120;
         }
       }
       else if((possibleMoves[i] == 1) && (possibleMoves[i + 1] == 8))
@@ -621,11 +621,11 @@ void evaluateDiagCorners(int board[][size], vector<int>& possibleMoves, vector<i
         //There is a possible move at 1 8
         if(board[0][9] == playerID)
         {
-          points[counter] += 60;
+          points[counter] += 70;
         }
         else if((board[0][9] == 0) || (board[0][9] == opponentID))
         {
-          points[counter] += -150;
+          points[counter] += -120;
         }
       }
       else if((possibleMoves[i] == 8) && (possibleMoves[i + 1] == 1))
@@ -633,11 +633,11 @@ void evaluateDiagCorners(int board[][size], vector<int>& possibleMoves, vector<i
         //There is a possible move at 8 1
         if(board[9][0] == playerID)
         {
-          points[counter] += 60;
+          points[counter] += 70;
         }
         else if((board[9][0] == 0) || (board[9][0] == opponentID))
         {
-          points[counter] += -150;
+          points[counter] += -120;
         }
       }
       else if((possibleMoves[i] == 8) && (possibleMoves[i + 1] == 8))
@@ -645,11 +645,11 @@ void evaluateDiagCorners(int board[][size], vector<int>& possibleMoves, vector<i
         //There is a possible move at 8 8
         if(board[9][9] == playerID)
         {
-          points[counter] += 60;
+          points[counter] += 70;
         }
         else if((board[9][9] == 0) || (board[9][9] == opponentID))
         {
-          points[counter] += -150;
+          points[counter] += -120;
         }
       }
     }
@@ -669,11 +669,11 @@ void evaluateNearCorners(int board[][size], vector<int>& possibleMoves, vector<i
       //There is a possible move near corner 0 0
       if(board[0][0] == playerID)
       {
-        points[counter] += 60;
+        points[counter] += 70;
       }
       else
       {
-        points[counter] += -300;
+        points[counter] += -200;
       }
     }
     else if(((possibleMoves[i] == 8) && (possibleMoves[i + 1] == 0)) || ((possibleMoves[i] == 9) && (possibleMoves[i + 1] == 1)))
@@ -681,11 +681,11 @@ void evaluateNearCorners(int board[][size], vector<int>& possibleMoves, vector<i
       //There is a possible move near corner 9 0
       if(board[9][0] == playerID)
       {
-        points[counter] += 60;
+        points[counter] += 70;
       }
       else
       {
-        points[counter] += -300;
+        points[counter] += -200;
       }       
     }
     else if(((possibleMoves[i] == 0) && (possibleMoves[i + 1] == 8)) || ((possibleMoves[i] == 1) && (possibleMoves[i + 1] == 9)))
@@ -693,11 +693,11 @@ void evaluateNearCorners(int board[][size], vector<int>& possibleMoves, vector<i
       //There is a possible move near corner 0 9
       if(board[0][9] == playerID)
       {
-        points[counter] += 60;
+        points[counter] += 70;
       }
       else
       {
-        points[counter] += -300;
+        points[counter] += -200;
       }       
     }
     else if(((possibleMoves[i] == 8) && (possibleMoves[i + 1] == 9)) || ((possibleMoves[i] == 9) && (possibleMoves[i + 1] == 8)))
@@ -705,11 +705,11 @@ void evaluateNearCorners(int board[][size], vector<int>& possibleMoves, vector<i
       //There is a possible move near corner 9 9
       if(board[9][9] == playerID)
       {
-        points[counter] += 60;
+        points[counter] += 70;
       }
       else
       {
-        points[counter] += -300;
+        points[counter] += -200;
       }       
     }
     
@@ -728,7 +728,7 @@ void evaluateFurtherCorners(int board[][size], vector<int>& possibleMoves, vecto
       //There is a possible move near corner 0 0
       if(board[0][0] == playerID)
       {
-        points[counter] += 60;
+        points[counter] += 90;
       }
       else if(board[0][0] == 0)
       {
@@ -744,7 +744,7 @@ void evaluateFurtherCorners(int board[][size], vector<int>& possibleMoves, vecto
       //There is a possible move near corner 9 0
       if(board[9][0] == playerID)
       {
-        points[counter] += 60;
+        points[counter] += 90;
       }
       else if(board[9][0] == 0)
       {
@@ -760,7 +760,7 @@ void evaluateFurtherCorners(int board[][size], vector<int>& possibleMoves, vecto
       //There is a possible move near corner 0 9
       if(board[0][9] == playerID)
       {
-        points[counter] += 60;
+        points[counter] += 90;
       }
       else if(board[0][9] == 0)
       {
@@ -776,7 +776,7 @@ void evaluateFurtherCorners(int board[][size], vector<int>& possibleMoves, vecto
       //There is a possible move near corner 9 9
       if(board[9][9] == playerID)
       {
-        points[counter] += 60;
+        points[counter] += 90;
       }
       else if(board[9][9] == 0)
       {
