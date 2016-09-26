@@ -6,7 +6,9 @@ Battle of Bots is an Artificial Intelligence competition that runs for 6 Days. T
 
 Rules
 The game for this challenge was Reversi(Othello). It is played on an 10X10 board. The game starts with two black and two white pieces set up like the figure below
-http://www.britishothello.org.uk/stboard.gif
+
+![alt tag](http://www.britishothello.org.uk/stboard.gif)
+
 Black always plays first with players then taking alternate turns.
 
 A player must place a stone on the board, in such a position that there exists at least one straight (horizontal, vertical, or diagonal) occupied line between the new stone and another stone of same color, with one or more contiguous other color stone between them.
