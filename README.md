@@ -21,6 +21,16 @@ Players may not pass unless there is no valid move available to them in which ca
 Play continues until neither player is able to move or when all 64 squares have been filled.
 
 
+**Running the Bot**
+
+To run the bot, run bot.cpp and input an 10*10 grid filled with 0's, 1's, 2's and 3's. followed by a number either 1 or 2 to indicate which players turn it is. 
+
+Note: 0's - Empty space no move available
+      1's - Player 1
+      2's - Player 2
+      3's - Possible move available
+
+
 **Results**
 
 My Bot placed 47th in the competition.
