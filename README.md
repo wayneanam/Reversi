@@ -4,7 +4,8 @@ Battle Of Bots #5 - Hackerearth
 Battle of Bots is an Artificial Intelligence competition that runs for 6 Days. The objective is to create a bot for a two player game that will compete against other bots.
 
 
-Rules
+**Rules**
+
 The game for this challenge was Reversi(Othello). It is played on an 10X10 board. The game starts with two black and two white pieces set up like the figure below
 
 ![alt tag](http://www.britishothello.org.uk/stboard.gif)
@@ -20,6 +21,6 @@ Players may not pass unless there is no valid move available to them in which ca
 Play continues until neither player is able to move or when all 64 squares have been filled.
 
 
-Results
+**Results**
 
 My Bot placed 47th in the competition.
