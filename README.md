@@ -34,4 +34,4 @@ Note:
 
 **Results**
 
-My Bot placed 47th out of 8771 in the competition.
+My Bot placed 47th out of 2394 in the competition.
